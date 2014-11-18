@@ -63,6 +63,7 @@ import de.schildbach.wallet.service.BlockchainServiceImpl;
 import de.schildbach.wallet.util.CrashReporter;
 import de.schildbach.wallet.util.Io;
 import de.schildbach.wallet.util.LinuxSecureRandom;
+import de.schildbach.wallet.util.Trace;
 import de.schildbach.wallet_test.R;
 
 /**
@@ -256,7 +257,9 @@ public class WalletApplication extends Application
 			{
 				walletStream = new FileInputStream(walletFile);
 
+				// Trace.beginSection("read wallet");
 				wallet = new WalletProtobufSerializer().readWallet(walletStream);
+				// Trace.endSection();
 
 				if (!wallet.getParams().equals(Constants.NETWORK_PARAMETERS))
 					throw new UnreadableWalletException("bad wallet network parameters: " + wallet.getParams().getId());
