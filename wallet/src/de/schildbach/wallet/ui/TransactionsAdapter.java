@@ -196,20 +196,25 @@ public class TransactionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 	{
 		int count = transactions.size();
 
-		if (count == 1 && showBackupWarning)
+		if (showBackupWarning)
 			count++;
 
 		return count;
 	}
 
 	@Override
-	public long getItemId(final int position)
+	public long getItemId(int position)
 	{
 		if (position == RecyclerView.NO_POSITION)
 			return RecyclerView.NO_ID;
 
-		if (position == transactions.size() && showBackupWarning)
-			return 0;
+		if (showBackupWarning)
+		{
+			if (position == 0)
+				return 0;
+			else
+				position--;
+		}
 
 		return WalletUtils.longHash(transactions.get(position).getHash());
 	}
@@ -217,7 +222,7 @@ public class TransactionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 	@Override
 	public int getItemViewType(final int position)
 	{
-		if (position == transactions.size() && showBackupWarning)
+		if (position == 0 && showBackupWarning)
 			return VIEW_TYPE_WARNING;
 		else
 			return VIEW_TYPE_TRANSACTION;
@@ -265,7 +270,7 @@ public class TransactionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 			final long itemId = getItemId(position);
 			transactionHolder.itemView.setActivated(itemId == selectedItemId);
 
-			final Transaction tx = transactions.get(position);
+			final Transaction tx = transactions.get(position - (showBackupWarning ? 1 : 0));
 			transactionHolder.bind(tx);
 
 			transactionHolder.itemView.setOnClickListener(new View.OnClickListener()
@@ -289,6 +294,21 @@ public class TransactionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 				});
 			}
 		}
+		else if (holder instanceof WarningViewHolder)
+		{
+			final WarningViewHolder warningHolder = (WarningViewHolder) holder;
+
+			if (transactions.size() == 1)
+			{
+				warningHolder.messageView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+				warningHolder.messageView.setText(Html.fromHtml(context.getString(R.string.wallet_transactions_row_warning_backup)));
+			}
+			else
+			{
+				warningHolder.messageView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_warning_grey600_24dp, 0, 0, 0);
+				warningHolder.messageView.setText(Html.fromHtml(context.getString(R.string.wallet_disclaimer_fragment_remind_backup)));
+			}
+		}
 	}
 
 	public interface OnClickListener
@@ -300,42 +320,42 @@ public class TransactionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
 	private class TransactionViewHolder extends RecyclerView.ViewHolder
 	{
-		private final View contentView;
 		private final View extendTimeView;
 		private final TextView fullTimeView;
-		private final CircularProgressView confidenceCircularView;
-		private final TextView confidenceTextualView;
+		private final View extendAddressView;
+		private final CircularProgressView confidenceCircularNormalView, confidenceCircularSelectedView;
+		private final TextView confidenceTextualNormalView, confidenceTextualSelectedView;
 		private final TextView timeView;
 		private final TextView addressView;
+		private final CurrencyTextView valueView;
 		private final View extendFeeView;
 		private final CurrencyTextView feeView;
-		private final CurrencyTextView valueView;
 		private final View extendFiatView;
 		private final CurrencyTextView fiatView;
 		private final View extendMessageView;
 		private final TextView messageView;
-		private final View extendMenuView;
 		private final ImageButton menuView;
 
 		private TransactionViewHolder(final View itemView)
 		{
 			super(itemView);
 
-			contentView = itemView.findViewById(R.id.transaction_row_content);
 			extendTimeView = itemView.findViewById(R.id.transaction_row_extend_time);
 			fullTimeView = (TextView) itemView.findViewById(R.id.transaction_row_full_time);
-			confidenceCircularView = (CircularProgressView) itemView.findViewById(R.id.transaction_row_confidence_circular);
-			confidenceTextualView = (TextView) itemView.findViewById(R.id.transaction_row_confidence_textual);
+			extendAddressView = itemView.findViewById(R.id.transaction_row_extend_address);
+			confidenceCircularNormalView = (CircularProgressView) itemView.findViewById(R.id.transaction_row_confidence_circular);
+			confidenceCircularSelectedView = (CircularProgressView) itemView.findViewById(R.id.transaction_row_confidence_circular_selected);
+			confidenceTextualNormalView = (TextView) itemView.findViewById(R.id.transaction_row_confidence_textual);
+			confidenceTextualSelectedView = (TextView) itemView.findViewById(R.id.transaction_row_confidence_textual_selected);
 			timeView = (TextView) itemView.findViewById(R.id.transaction_row_time);
 			addressView = (TextView) itemView.findViewById(R.id.transaction_row_address);
+			valueView = (CurrencyTextView) itemView.findViewById(R.id.transaction_row_value);
 			extendFeeView = itemView.findViewById(R.id.transaction_row_extend_fee);
 			feeView = (CurrencyTextView) itemView.findViewById(R.id.transaction_row_fee);
-			valueView = (CurrencyTextView) itemView.findViewById(R.id.transaction_row_value);
 			extendFiatView = itemView.findViewById(R.id.transaction_row_extend_fiat);
 			fiatView = (CurrencyTextView) itemView.findViewById(R.id.transaction_row_fiat);
 			extendMessageView = itemView.findViewById(R.id.transaction_row_extend_message);
 			messageView = (TextView) itemView.findViewById(R.id.transaction_row_message);
-			extendMenuView = itemView.findViewById(R.id.transaction_row_extend_menu);
 			menuView = (ImageButton) itemView.findViewById(R.id.transaction_row_menu);
 		}
 
@@ -348,7 +368,7 @@ public class TransactionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 			final ConfidenceType confidenceType = confidence.getConfidenceType();
 			final boolean isOwn = confidence.getSource().equals(TransactionConfidence.Source.SELF);
 			final boolean isCoinBase = tx.isCoinBase();
-			final boolean isInternal = tx.getPurpose() == Purpose.KEY_ROTATION;
+			final Transaction.Purpose purpose = tx.getPurpose();
 			final Coin fee = tx.getFee();
 			final String[] memo = Formats.sanitizeMemo(tx.getMemo());
 
@@ -390,6 +410,11 @@ public class TransactionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 			}
 
 			// confidence
+			final CircularProgressView confidenceCircularView = itemView.isActivated() ? confidenceCircularSelectedView
+					: confidenceCircularNormalView;
+			final TextView confidenceTextualView = itemView.isActivated() ? confidenceTextualSelectedView : confidenceTextualNormalView;
+			(itemView.isActivated() ? confidenceCircularNormalView : confidenceCircularSelectedView).setVisibility(View.INVISIBLE);
+			(itemView.isActivated() ? confidenceTextualNormalView : confidenceTextualSelectedView).setVisibility(View.GONE);
 			if (confidenceType == ConfidenceType.PENDING)
 			{
 				confidenceCircularView.setVisibility(View.VISIBLE);
@@ -456,11 +481,15 @@ public class TransactionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 				addressView.setTypeface(Typeface.DEFAULT_BOLD);
 				addressView.setText(textCoinBase);
 			}
-			else if (isInternal)
+			else if (purpose == Purpose.KEY_ROTATION)
 			{
 				addressView.setTextColor(textColor);
 				addressView.setTypeface(Typeface.DEFAULT_BOLD);
 				addressView.setText(textInternal);
+			}
+			else if (purpose == Purpose.RAISE_FEE)
+			{
+				addressView.setText(null);
 			}
 			else if (txCache.addressLabel != null)
 			{
@@ -488,20 +517,37 @@ public class TransactionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 				addressView.setText("?");
 			}
 			addressView.setSingleLine(!itemView.isActivated());
+			extendAddressView.setVisibility(!itemView.isActivated() || purpose != Purpose.RAISE_FEE ? View.VISIBLE : View.GONE);
 
 			// fee
-			extendFeeView.setVisibility((itemView.isActivated() || confidenceType == ConfidenceType.PENDING) && txCache.showFee ? View.VISIBLE
-					: View.GONE);
-			feeView.setAlwaysSigned(true);
-			feeView.setFormat(format);
 			if (txCache.showFee)
+			{
+				extendFeeView
+						.setVisibility(itemView.isActivated() || (confidenceType == ConfidenceType.PENDING && purpose != Purpose.RAISE_FEE) ? View.VISIBLE
+								: View.GONE);
+				feeView.setAlwaysSigned(true);
+				feeView.setFormat(format);
 				feeView.setAmount(fee.negate());
+			}
+			else
+			{
+				extendFeeView.setVisibility(View.GONE);
+			}
 
 			// value
-			valueView.setTextColor(valueColor);
 			valueView.setAlwaysSigned(true);
 			valueView.setFormat(format);
-			final Coin value = txCache.showFee ? txCache.value.add(fee) : txCache.value;
+			final Coin value;
+			if (purpose == Purpose.RAISE_FEE)
+			{
+				valueView.setTextColor(colorInsignificant);
+				value = fee.negate();
+			}
+			else
+			{
+				valueView.setTextColor(valueColor);
+				value = txCache.showFee ? txCache.value.add(fee) : txCache.value;
+			}
 			valueView.setAmount(value);
 			valueView.setVisibility(!value.isZero() ? View.VISIBLE : View.GONE);
 
@@ -524,11 +570,17 @@ public class TransactionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 			extendMessageView.setVisibility(View.GONE);
 			messageView.setSingleLine(false);
 
-			if (isInternal)
+			if (purpose == Purpose.KEY_ROTATION)
 			{
 				extendMessageView.setVisibility(View.VISIBLE);
 				messageView.setText(Html.fromHtml(context.getString(R.string.transaction_row_message_purpose_key_rotation)));
 				messageView.setTextColor(colorSignificant);
+			}
+			else if (purpose == Purpose.RAISE_FEE)
+			{
+				extendMessageView.setVisibility(View.VISIBLE);
+				messageView.setText(R.string.transaction_row_message_purpose_raise_fee);
+				messageView.setTextColor(colorInsignificant);
 			}
 			else if (isOwn && confidenceType == ConfidenceType.PENDING && confidence.numBroadcastPeers() == 0)
 			{
@@ -560,7 +612,7 @@ public class TransactionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 				messageView.setText(R.string.transaction_row_message_received_dead);
 				messageView.setTextColor(colorError);
 			}
-			else if (!txCache.sent && tx.getOutputs().size() > 20)
+			else if (!txCache.sent && WalletUtils.isPayToManyTransaction(tx))
 			{
 				extendMessageView.setVisibility(View.VISIBLE);
 				messageView.setText(R.string.transaction_row_message_received_pay_to_many);
@@ -575,9 +627,7 @@ public class TransactionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 			}
 
 			// menu
-			contentView.setPadding(contentView.getPaddingLeft(), contentView.getPaddingTop(), itemView.isActivated() ? 0 : context.getResources()
-					.getDimensionPixelOffset(R.dimen.list_entry_padding_horizontal), contentView.getPaddingBottom());
-			extendMenuView.setVisibility(itemView.isActivated() ? View.VISIBLE : View.GONE);
+			menuView.setVisibility(itemView.isActivated() ? View.VISIBLE : View.GONE);
 		}
 	}
 
@@ -590,7 +640,6 @@ public class TransactionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 			super(itemView);
 
 			messageView = (TextView) itemView.findViewById(R.id.transaction_row_warning_message);
-			messageView.setText(Html.fromHtml(context.getString(R.string.wallet_transactions_row_warning_backup)));
 
 			if (onClickListener != null)
 			{

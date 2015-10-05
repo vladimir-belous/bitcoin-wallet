@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	android:baselineAligned="false"
-	android:orientation="horizontal" >
+	android:layout_height="wrap_content" >
 
 	<LinearLayout
-		android:id="@+id/transaction_row_content"
-		android:layout_width="0px"
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_weight="1"
 		android:orientation="vertical"
 		android:paddingBottom="8dp"
 		android:paddingLeft="@dimen/list_entry_padding_horizontal"
@@ -25,10 +21,21 @@
 			android:paddingBottom="2dp"
 			android:visibility="gone" >
 
-			<Space
+			<de.schildbach.wallet.util.CircularProgressView
+				android:id="@+id/transaction_row_confidence_circular_selected"
 				android:layout_width="@dimen/symbol_size_normal"
 				android:layout_height="@dimen/symbol_size_normal"
 				android:layout_marginRight="8dp" />
+
+			<TextView
+				android:id="@+id/transaction_row_confidence_textual_selected"
+				android:layout_width="@dimen/symbol_size_normal"
+				android:layout_height="wrap_content"
+				android:layout_marginRight="8dp"
+				android:ellipsize="none"
+				android:gravity="center_horizontal|top"
+				android:singleLine="true"
+				android:textStyle="bold" />
 
 			<TextView
 				android:id="@+id/transaction_row_full_time"
@@ -37,6 +44,7 @@
 		</LinearLayout>
 
 		<LinearLayout
+			android:id="@+id/transaction_row_extend_address"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:baselineAligned="true"
@@ -53,6 +61,7 @@
 				android:layout_width="@dimen/symbol_size_normal"
 				android:layout_height="wrap_content"
 				android:layout_marginRight="8dp"
+				android:ellipsize="none"
 				android:gravity="center_horizontal|top"
 				android:singleLine="true"
 				android:textStyle="bold" />
@@ -155,19 +164,12 @@
 		</LinearLayout>
 	</LinearLayout>
 
-	<LinearLayout
-		android:id="@+id/transaction_row_extend_menu"
+	<ImageButton
+		android:id="@+id/transaction_row_menu"
+		style="@style/My.Widget.Button.Borderless.Small"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:orientation="vertical"
-		android:visibility="gone" >
+		android:layout_gravity="top|right"
+		android:src="@drawable/ic_more_vert_grey600_18dp" />
 
-		<ImageButton
-			android:id="@+id/transaction_row_menu"
-			style="@style/My.Widget.Button.Borderless"
-			android:layout_width="36dp"
-			android:layout_height="wrap_content"
-			android:src="@drawable/ic_more_vert_grey600_24dp" />
-	</LinearLayout>
-
-</LinearLayout>
+</FrameLayout>

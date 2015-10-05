@@ -29,6 +29,7 @@ import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.VerificationException;
 import org.bitcoinj.core.VersionMessage;
 import org.bitcoinj.core.Wallet;
+import org.bitcoinj.crypto.LinuxSecureRandom;
 import org.bitcoinj.crypto.MnemonicCode;
 import org.bitcoinj.store.UnreadableWalletException;
 import org.bitcoinj.store.WalletProtobufSerializer;
@@ -62,7 +63,6 @@ import de.schildbach.wallet.service.BlockchainService;
 import de.schildbach.wallet.service.BlockchainServiceImpl;
 import de.schildbach.wallet.util.CrashReporter;
 import de.schildbach.wallet.util.Io;
-import de.schildbach.wallet.util.LinuxSecureRandom;
 import de.schildbach.wallet_test.R;
 
 /**
@@ -118,7 +118,7 @@ public class WalletApplication extends Application
 
 		initMnemonicCode();
 
-		config = new Configuration(PreferenceManager.getDefaultSharedPreferences(this));
+		config = new Configuration(PreferenceManager.getDefaultSharedPreferences(this), getResources());
 		activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
 
 		blockchainServiceIntent = new Intent(this, BlockchainServiceImpl.class);
@@ -272,6 +272,14 @@ public class WalletApplication extends Application
 				wallet = restoreWalletFromBackup();
 			}
 			catch (final UnreadableWalletException x)
+			{
+				log.error("problem loading wallet", x);
+
+				Toast.makeText(WalletApplication.this, x.getClass().getName(), Toast.LENGTH_LONG).show();
+
+				wallet = restoreWalletFromBackup();
+			}
+			catch (final IllegalArgumentException x)
 			{
 				log.error("problem loading wallet", x);
 
@@ -543,7 +551,7 @@ public class WalletApplication extends Application
 
 	public static void scheduleStartBlockchainService(final Context context)
 	{
-		final Configuration config = new Configuration(PreferenceManager.getDefaultSharedPreferences(context));
+		final Configuration config = new Configuration(PreferenceManager.getDefaultSharedPreferences(context), context.getResources());
 		final long lastUsedAgo = config.getLastUsedAgo();
 
 		// apply some backoff

@@ -192,6 +192,7 @@ public class EncryptKeysDialogFragment extends DialogFragment
 
 				showView = (CheckBox) dialog.findViewById(R.id.encrypt_keys_dialog_show);
 				showView.setOnCheckedChangeListener(new ShowPasswordCheckListener(newPasswordView, oldPasswordView));
+				showView.setChecked(true);
 
 				EncryptKeysDialogFragment.this.dialog = dialog;
 				updateView();
@@ -212,14 +213,14 @@ public class EncryptKeysDialogFragment extends DialogFragment
 	@Override
 	public void onDismiss(final DialogInterface dialog)
 	{
-		wipePasswords();
-
 		this.dialog = null;
 
 		oldPasswordView.removeTextChangedListener(textWatcher);
 		newPasswordView.removeTextChangedListener(textWatcher);
 
 		showView.setOnCheckedChangeListener(null);
+
+		wipePasswords();
 
 		super.onDismiss(dialog);
 	}

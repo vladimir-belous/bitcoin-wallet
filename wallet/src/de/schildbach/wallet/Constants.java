@@ -27,6 +27,9 @@ import org.bitcoinj.utils.MonetaryFormat;
 import android.os.Build;
 import android.os.Environment;
 import android.text.format.DateUtils;
+
+import com.google.common.io.BaseEncoding;
+
 import de.schildbach.wallet_test.R;
 
 /**
@@ -52,6 +55,9 @@ public final class Constants
 		/** Filename of the automatic wallet backup. */
 		public static final String WALLET_KEY_BACKUP_PROTOBUF = "key-backup-protobuf" + FILENAME_NETWORK_SUFFIX;
 
+		/** Path to external storage */
+		public static final File EXTERNAL_STORAGE_DIR = Environment.getExternalStorageDirectory();
+
 		/** Manual backups go here. */
 		public static final File EXTERNAL_WALLET_BACKUP_DIR = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 
@@ -71,12 +77,6 @@ public final class Constants
 	/** Maximum size of backups. Files larger will be rejected. */
 	public static final long BACKUP_MAX_CHARS = 10000000;
 
-	private static final String EXPLORE_BASE_URL_PROD = "https://www.biteasy.com/";
-	private static final String EXPLORE_BASE_URL_TEST = "https://www.biteasy.com/testnet/";
-	/** Base URL for browsing transactions, blocks or addresses. */
-	public static final String EXPLORE_BASE_URL = NETWORK_PARAMETERS.getId().equals(NetworkParameters.ID_MAINNET) ? EXPLORE_BASE_URL_PROD
-			: EXPLORE_BASE_URL_TEST;
-
 	private static final String BITEASY_API_URL_PROD = "https://api.biteasy.com/blockchain/v1/";
 	private static final String BITEASY_API_URL_TEST = "https://api.biteasy.com/testnet/v1/";
 	/** Base URL for blockchain API. */
@@ -84,7 +84,7 @@ public final class Constants
 			: BITEASY_API_URL_TEST;
 
 	/** URL to fetch version alerts from. */
-	public static final String VERSION_URL = "http://wallet.schildbach.de/version";
+	public static final String VERSION_URL = "https://wallet.schildbach.de/version";
 
 	/** MIME type used for transmitting single transactions. */
 	public static final String MIMETYPE_TRANSACTION = "application/x-btctx";
@@ -124,6 +124,8 @@ public final class Constants
 	public static final int ADDRESS_FORMAT_LINE_SIZE = 12;
 
 	public static final MonetaryFormat LOCAL_FORMAT = new MonetaryFormat().noCode().minDecimals(2).optionalDecimals();
+
+	public static final BaseEncoding HEX = BaseEncoding.base16().lowerCase();
 
 	public static final String SOURCE_URL = "https://github.com/schildbach/bitcoin-wallet";
 	public static final String BINARY_URL = "https://github.com/schildbach/bitcoin-wallet/releases";

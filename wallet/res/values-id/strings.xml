@@ -58,7 +58,6 @@
 	<string name="send_coins_failed_msg">Gagal!</string>
 	<string name="send_coins_error_msg">Gagal mengirim koin!</string>
 	<string name="send_coins_options_empty">Dompet kosong</string>
-	<string name="send_coins_address_context_clear_title">Masukkan alamat baru</string>
 	<string name="request_coins_activity_title">Meminta BItcoin</string>
 	<string name="request_coins_fragment_amount_label">Jumlah permintaan (pilihan)</string>
 	<string name="request_coins_fragment_initiate_request_qr">Berikan kode untuk dipindai oleh pengirim.</string>
@@ -170,7 +169,6 @@
 	<string name="button_request_coins">Meminta koin</string>
 	<string name="button_send_coins">Kirim koin</string>
 	<string name="button_scan">Pindai</string>
-	<string name="button_edit_address">Tambah/ubah alamat</string>
 	<string name="button_settings">Pengaturan</string>
 	<string name="action_show_qr">Tampilkan kode QR</string>
 	<string name="time_today">hari ini</string>

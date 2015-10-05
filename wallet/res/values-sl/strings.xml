@@ -73,7 +73,6 @@
 	<string name="send_coins_failed_msg">Spodletelo!\n</string>
 	<string name="send_coins_error_msg">Težava pri pošiljanju novcev!</string>
 	<string name="send_coins_options_empty">Izprazni denarnico</string>
-	<string name="send_coins_address_context_clear_title">Vnesi nov naslov</string>
 	<string name="request_coins_activity_title">Zahtevaj novce</string>
 	<string name="request_coins_fragment_amount_label">Znesek za plačilo (neobvezno)</string>
 	<string name="request_coins_fragment_accept_bluetooth_payment">Sprejmi plačilo prek Bluetootha za bolj zanesljivo procesiranje</string>
@@ -167,7 +166,7 @@
 	<string name="preferences_initiate_reset_dialog_positive">Ponastavi</string>
 	<string name="report_issue_dialog_title_issue">Prijavi težavo</string>
 	<string name="report_issue_dialog_title_crash">Zaznano sesutje v preteklosti</string>
-	<string name="report_issue_dialog_message_issue">Prosimo, opišite težavo tako natančno, da jo bomo lahko ponovili. Če je težava vezana na vašo denarnico, premislite o pripenjanju kopije denarnice.</string>
+	<string name="report_issue_dialog_message_issue">Prosimo, opišite težavo tako natančno, da jo bomo lahko ponovili.</string>
 	<string name="report_issue_dialog_message_crash">Želite poslati razvijalcem poročilo o sesutju, da bomo težavo lažje odpravili?</string>
 	<string name="report_issue_dialog_description">opis težave</string>
 	<string name="report_issue_dialog_report">Prijavi</string>
@@ -204,7 +203,6 @@
 	<string name="button_request_coins">Prejmi novce</string>
 	<string name="button_send_coins">Pošlji novce</string>
 	<string name="button_scan">Prečitaj</string>
-	<string name="button_edit_address">Dodaj/uredi naslov</string>
 	<string name="button_settings">Nastavitve</string>
 	<string name="action_show_qr">Prikazi QR-kodo</string>
 	<string name="action_browse">Ogled v brskalniku</string>

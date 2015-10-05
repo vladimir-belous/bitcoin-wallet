@@ -226,7 +226,8 @@ public final class WalletActivity extends AbstractWalletActivity
 		super.onCreateOptionsMenu(menu);
 
 		getMenuInflater().inflate(R.menu.wallet_options, menu);
-		menu.findItem(R.id.wallet_options_donate).setVisible(false);
+		final boolean installedFromGooglePlay = "com.android.vending".equals(getPackageManager().getInstallerPackageName(getPackageName()));
+		menu.findItem(R.id.wallet_options_donate).setVisible(!Constants.TEST && !installedFromGooglePlay);
 
 		return true;
 	}
@@ -377,6 +378,7 @@ public final class WalletActivity extends AbstractWalletActivity
 	private Dialog createRestoreWalletDialog()
 	{
 		final View view = getLayoutInflater().inflate(R.layout.restore_wallet_dialog, null);
+		final TextView messageView = (TextView) view.findViewById(R.id.restore_wallet_dialog_message);
 		final Spinner fileView = (Spinner) view.findViewById(R.id.import_keys_from_storage_file);
 		final EditText passwordView = (EditText) view.findViewById(R.id.import_keys_from_storage_password);
 
@@ -449,6 +451,15 @@ public final class WalletActivity extends AbstractWalletActivity
 			}
 		};
 
+		final String path;
+		final String backupPath = Constants.Files.EXTERNAL_WALLET_BACKUP_DIR.getAbsolutePath();
+		final String storagePath = Constants.Files.EXTERNAL_STORAGE_DIR.getAbsolutePath();
+		if (backupPath.startsWith(storagePath))
+			path = backupPath.substring(storagePath.length());
+		else
+			path = backupPath;
+		messageView.setText(getString(R.string.import_keys_dialog_message, path));
+
 		fileView.setAdapter(adapter);
 
 		return dialog.create();
@@ -463,8 +474,7 @@ public final class WalletActivity extends AbstractWalletActivity
 		// external storage
 		if (Constants.Files.EXTERNAL_WALLET_BACKUP_DIR.exists() && Constants.Files.EXTERNAL_WALLET_BACKUP_DIR.isDirectory())
 			for (final File file : Constants.Files.EXTERNAL_WALLET_BACKUP_DIR.listFiles())
-				if (WalletUtils.BACKUP_FILE_FILTER.accept(file) || WalletUtils.KEYS_FILE_FILTER.accept(file)
-						|| Crypto.OPENSSL_FILE_FILTER.accept(file))
+				if (Crypto.OPENSSL_FILE_FILTER.accept(file))
 					files.add(file);
 
 		// internal storage
